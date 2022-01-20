@@ -1,0 +1,30 @@
+name: Auto dependency branch creator
+
+on:
+  schedule:
+    #         ┌───────────── minute (0 - 59)
+    #         │ ┌───────────── hour (0 - 23)
+    #         │ │ ┌───────────── day of the month (1 - 31)
+    #         │ │ │ ┌───────────── month (1 - 12 or JAN-DEC)
+    #         │ │ │ │ ┌───────────── day of the week (0 - 6 or SUN-SAT)
+    #         │ │ │ │ │
+    #         │ │ │ │ │
+    #         │ │ │ │ │
+    #         * * * * *
+    - cron: '40 * * * *' # scheduled on every Tuesday 22:00
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Create new branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # -f で強制的に現在のstagingに合わせる
+        run: |
+          git switch -c dependency origin/main
+          git reset --hard origin/main
+          git push -f origin dependency
+
